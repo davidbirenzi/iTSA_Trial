@@ -1,0 +1,21 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Home - iTSA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-center mb-4">Welcome to iTSA</h1>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Student Dashboard</h5>
+                <p class="card-text">Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
+                <p class="card-text">Your student email: {{ user.student_email }}</p>
+                <p class="card-text">Faculty: {{ user.faculty }}</p>
+                <p class="card-text">Academic Year: {{ user.academic_year }}</p>
+                <p class="card-text">Trimester: {{ user.trimester }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
