@@ -1,6 +1,27 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+class AdminUserManager(BaseUserManager):
+    def create_user(self, admin_email, password=None, **extra_fields):
+        if not admin_email:
+            raise ValueError('The Admin Email field must be set')
+        email = self.normalize_email(admin_email)
+        user = self.model(admin_email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, admin_email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(admin_email, password, **extra_fields)
+
 class StudentUserManager(BaseUserManager):
     def create_user(self, student_email, password=None, **extra_fields):
         if not student_email:
@@ -12,18 +33,7 @@ class StudentUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, student_email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('faculty', 'Admin')
-        extra_fields.setdefault('academic_year', 1)
-        extra_fields.setdefault('trimester', 1)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(student_email, password, **extra_fields)
+        raise ValueError('Students cannot be superusers')
 
 class TeacherUserManager(BaseUserManager):
     def create_user(self, teacher_email, password=None, **extra_fields):
@@ -38,7 +48,6 @@ class TeacherUserManager(BaseUserManager):
     def create_superuser(self, teacher_email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('faculty', 'Admin')
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -47,17 +56,25 @@ class TeacherUserManager(BaseUserManager):
 
         return self.create_user(teacher_email, password, **extra_fields)
 
-class StudentUser(AbstractUser):
-    # Remove username field since we'll use email for authentication
+class AdminUser(AbstractUser):
     username = None
+    admin_email = models.EmailField(unique=True)
     
-    # Add custom fields
+    USERNAME_FIELD = 'admin_email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
+    
+    objects = AdminUserManager()
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.admin_email})"
+
+class StudentUser(AbstractUser):
+    username = None
     student_email = models.EmailField(unique=True)
     faculty = models.CharField(max_length=100)
     academic_year = models.IntegerField()
     trimester = models.IntegerField()
     
-    # Set email field as the username field
     USERNAME_FIELD = 'student_email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'faculty', 'academic_year', 'trimester']
     
@@ -110,3 +127,29 @@ class TeacherUser(AbstractUser):
     
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.teacher_email})"
+    
+    def get_username(self):
+        return self.teacher_email
+
+class Course(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    faculty = models.CharField(max_length=100)
+    teacher = models.ForeignKey(TeacherUser, on_delete=models.CASCADE)
+    course_file = models.FileField(upload_to='courses/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.teacher.first_name} {self.teacher.last_name}"
+
+class LearningOutcome(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learning_outcomes')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    outcome_file = models.FileField(upload_to='learning_outcomes/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.course.title}"

@@ -1,6 +1,6 @@
 {% extends 'users/base.html' %}
 
-{% block title %}Teacher Dashboard - iTSA{% endblock %}
+{% block title %}Students - {{ selected_cohort }} - iTSA{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -15,7 +15,7 @@
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active text-white" href="{% url 'teacher_home' %}">
+                        <a class="nav-link text-white" href="{% url 'teacher_home' %}">
                             <i class="fas fa-home me-2"></i> Home
                         </a>
                     </li>
@@ -36,13 +36,32 @@
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Classes</h1>
+                <h1 class="h2">Students in {{ selected_cohort }}</h1>
+                <a href="{% url 'teacher_home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Classes
+                </a>
             </div>
 
-            <!-- Classes Table -->
+            <!-- Student Filters -->
             <div class="card mb-4">
                 <div class="card-header bg-white">
-                    <h3 class="card-title mb-0">Class List</h3>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Student List</h3>
+                        <div class="filter-buttons">
+                            <a href="?cohort={{ selected_cohort }}&filter=all" 
+                               class="btn btn-filter {% if filter_type == 'all' %}active{% endif %}">
+                                <i class="fas fa-users me-2"></i>All Students
+                            </a>
+                            <a href="?cohort={{ selected_cohort }}&filter=high_score" 
+                               class="btn btn-filter btn-success {% if filter_type == 'high_score' %}active{% endif %}">
+                                <i class="fas fa-star me-2"></i>High Score
+                            </a>
+                            <a href="?cohort={{ selected_cohort }}&filter=danger_zone" 
+                               class="btn btn-filter btn-danger {% if filter_type == 'danger_zone' %}active{% endif %}">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -50,22 +69,24 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Class Name</th>
+                                    <th>Student Email</th>
+                                    <th>Names</th>
+                                    <th>Attempts</th>
                                     <th>Average Score</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for cohort_name, stats in cohort_stats.items %}
+                                {% for student in filtered_students %}
                                 <tr>
-                                    <td>{{ stats.id }}</td>
-                                    <td>{{ stats.name }}</td>
-                                    <td>{{ stats.average_score }}%</td>
-                                    <td>
-                                        <a href="{% url 'teacher_students' %}?cohort={{ cohort_name }}" class="btn btn-sm btn-primary">
-                                            View Students
-                                        </a>
-                                    </td>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ student.student_email }}</td>
+                                    <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                    <td>{{ student.attempts }}</td>
+                                    <td>{{ student.average_score }}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No students found.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -135,20 +156,73 @@ main {
     font-weight: 600;
 }
 
-.btn-group .btn {
-    padding: 0.375rem 0.75rem;
+.filter-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-filter {
+    padding: 0.5rem 1rem;
     font-weight: 500;
     transition: all 0.3s;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
 }
 
-.btn-group .btn:hover {
+.btn-filter:not(.active) {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+.btn-filter.active {
     transform: translateY(-2px);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-.btn-group .btn.active {
+.btn-filter:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-filter.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-filter.btn-success:not(.active) {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+.btn-filter.btn-success.active {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-filter.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-filter.btn-danger:not(.active) {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+.btn-filter.btn-danger.active {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
 }
 
 .table-responsive {
