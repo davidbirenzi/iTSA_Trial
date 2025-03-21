@@ -1,0 +1,128 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Level 1 - Customer Care Module{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-auto d-none d-md-block bg-light sidebar">
+            <div class="nav flex-column">
+                <a href="#" class="nav-link active">
+                    <i class="bi bi-house-door fs-4"></i>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-book fs-4"></i>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-mortarboard fs-4"></i>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-file-text fs-4"></i>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-chat-dots fs-4"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span class="text-muted">Attempts: {{ attempts|default:"3" }}</span>
+                </div>
+                <div class="text-center">
+                    <span class="text-muted me-4">Start Date: {{ start_date|default:"None" }}</span>
+                    <span class="text-muted">Due Date: {{ due_date|default:"None" }}</span>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">LEVEL 1</h2>
+                </div>
+                <div class="card-body">
+                    <h4>Hello There Fellow Adventurer!</h4>
+                    <p>Welcome to Level 1 of the Customer Care Module. Here are some important notices:</p>
+                    
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            This Level will have the purpose to understand the importance of customer care
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            This Level will only last 10minutes
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            You will only be able to use iTSA after submission
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            The Score of the last attempt will be stored
+                        </li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <strong>Reminder:</strong> Scores from this level won't be considered on your grade but will be considered for your admission to exam
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'start_level_one' %}" class="btn btn-success btn-lg px-5">
+                            START
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    width: 60px;
+    min-height: 100vh;
+    padding-top: 20px;
+}
+
+.sidebar .nav-link {
+    padding: 10px;
+    color: #6c757d;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #28a745;
+    color: white;
+}
+
+.card-header {
+    background: #28a745 !important;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 12px 40px;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #218838;
+    transform: translateY(-2px);
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+    color: #856404;
+}
+</style>
+{% endblock %} 

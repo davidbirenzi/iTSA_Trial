@@ -19,56 +19,76 @@ class StudentRegistrationForm(UserCreationForm):
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
 
-class StudentLoginForm(AuthenticationForm):
-    username = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    
-    class Meta:
-        model = StudentUser
-        fields = ('student_email', 'password')
+class StudentLoginForm(forms.Form):
+    student_email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your student email'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your password'
+        })
+    )
 
 class TeacherRegistrationForm(UserCreationForm):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email'
+        })
+    )
+    
     class Meta:
         model = TeacherUser
-        fields = ('first_name', 'last_name', 'teacher_email', 'faculty', 'password1', 'password2')
+        fields = ('first_name', 'last_name', 'email', 'faculty', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Customize form fields
-        self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['teacher_email'].widget.attrs.update({'class': 'form-control'})
-        self.fields['faculty'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+        self.fields['first_name'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter your first name'
+        })
+        self.fields['last_name'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter your last name'
+        })
+        self.fields['faculty'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Select your faculty'
+        })
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Enter your password'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirm your password'
+        })
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = None  # Ensure username is not used
+        if commit:
+            user.save()
+        return user
 
-class TeacherLoginForm(AuthenticationForm):
-    username = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control'}),
-        label='Teacher Email'
+class TeacherLoginForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your email'
+        })
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your password'
+        })
     )
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'Teacher Email'
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        email = cleaned_data.get('username')
-        password = cleaned_data.get('password')
-        
-        if email and password:
-            try:
-                user = TeacherUser.objects.get(teacher_email=email)
-                if not user.check_password(password):
-                    raise forms.ValidationError('Invalid email or password.')
-            except TeacherUser.DoesNotExist:
-                raise forms.ValidationError('Invalid email or password.')
-        
-        return cleaned_data
 
 class CourseForm(forms.ModelForm):
     class Meta:

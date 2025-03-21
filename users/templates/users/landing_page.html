@@ -1,0 +1,126 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Welcome to iTSA{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="row h-100">
+        <!-- Left side with illustration -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <div class="illustration">
+                <img src="{% static 'users/images/landing-illustration.svg' %}" alt="Learning Illustration" class="img-fluid">
+            </div>
+        </div>
+
+        <!-- Right side with content -->
+        <div class="col-md-6 d-flex align-items-center">
+            <div class="content-wrapper">
+                <h1 class="welcome-title">Welcome To iTSA</h1>
+                
+                <div class="tagline">
+                    <span class="text-dark">Master</span> your <span class="text-dark">skills</span> while having <span class="text-success">fun</span>
+                </div>
+
+                <div class="buttons-container mt-4">
+                    <a href="{% url 'login_student' %}" class="btn btn-success btn-lg mb-3 start-btn">
+                        <i class="bi bi-mortarboard-fill me-2"></i>Enter as Student
+                    </a>
+                    <a href="{% url 'login_teacher' %}" class="btn btn-outline-success btn-lg guide-btn">
+                        <i class="bi bi-person-workspace me-2"></i>Enter as Teacher
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.landing-container {
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 2rem;
+}
+
+.illustration {
+    max-width: 600px;
+    padding: 2rem;
+}
+
+.content-wrapper {
+    max-width: 500px;
+    padding: 2rem;
+}
+
+.welcome-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.tagline {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+.tagline .text-success {
+    color: #00c853 !important;
+    font-weight: 600;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.start-btn, .guide-btn {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+}
+
+.start-btn {
+    background: #00c853;
+    border: none;
+}
+
+.start-btn:hover {
+    background: #00a844;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+.guide-btn {
+    border: 2px solid #00c853;
+    color: #00c853;
+}
+
+.guide-btn:hover {
+    background: #00c853;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.2);
+}
+
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 1rem;
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+
+    .tagline {
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %} 

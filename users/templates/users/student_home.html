@@ -1,0 +1,590 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Student Dashboard - iTSA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Sidebar Styles */
+.sidebar {
+    width: 80px;
+    transition: all 0.3s;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding-top: 60px;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link {
+    color: #fff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    margin: 8px auto;
+    position: relative;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #28a745;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.sidebar .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 10px;
+    background: #333;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.sidebar .nav-link:hover::after {
+    opacity: 1;
+    left: 70px;
+}
+
+.sidebar .nav-item:nth-child(1) .nav-link::after { content: 'Dashboard'; }
+.sidebar .nav-item:nth-child(2) .nav-link::after { content: 'Courses'; }
+.sidebar .nav-item:nth-child(3) .nav-link::after { content: 'Progress'; }
+.sidebar .nav-item:nth-child(4) .nav-link::after { content: 'Resources'; }
+.sidebar .nav-item:nth-child(5) .nav-link::after { content: 'Chat'; }
+
+/* Progress Circle Styles */
+.progress-circle {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #28a745, #20c997);
+    position: relative;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.progress-circle-inner {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stars {
+    color: #ffc107;
+    font-size: 28px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+}
+
+.progress-label {
+    color: #28a745;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #28a745;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* List Styles */
+.list-group-item {
+    border: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    padding-left: 10px;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item a {
+    color: #28a745;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.list-group-item a:hover {
+    color: #218838;
+    text-decoration: none;
+}
+
+.list-group-item a::before {
+    content: '→';
+    margin-right: 10px;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.list-group-item:hover a::before {
+    opacity: 1;
+    margin-right: 15px;
+}
+
+/* Learning Outcomes List */
+.outcomes-list li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.outcomes-list li::before {
+    content: '•';
+    color: #28a745;
+    font-size: 24px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.3s;
+}
+
+.outcomes-list li:hover {
+    transform: translateX(5px);
+}
+
+.outcomes-list li:hover::before {
+    color: #218838;
+}
+
+/* Button Styles */
+.btn-primary {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #218838, #1ba87e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+/* Progress Bar */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: #e9ecef;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    transition: width 1s ease-in-out;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: 80px;
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+    .main-content {
+        margin-left: 60px;
+    }
+    .progress-circle {
+        width: 180px;
+        height: 180px;
+    }
+    .progress-circle-inner {
+        width: 160px;
+        height: 160px;
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #28a745;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #218838;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Sidebar -->
+        <div class="col-auto px-0 bg-dark sidebar">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fs-4 bi bi-house"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fs-4 bi bi-book"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fs-4 bi bi-mortarboard"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fs-4 bi bi-file-text"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fs-4 bi bi-chat-dots"></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="mt-auto pb-4">
+                    <a href="#" class="nav-link">
+                        <i class="fs-4 bi bi-gear"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col ps-md-2 pt-2 main-content">
+            <!-- Header -->
+            <div class="page-header pt-3 pb-2 mb-4">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h1 class="h2 mb-3">Customer Care Levels</h1>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 13%;" aria-valuenow="13" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">Overall Progress: 13%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="container-fluid">
+                <div class="row g-4">
+                    <!-- Current Module Progress -->
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="progress-circle">
+                                    <div class="progress-circle-inner">
+                                        <div class="stars">
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                            <i class="bi bi-star-fill"></i>
+                                        </div>
+                                        <h3 class="mt-3 mb-2">Customer Care</h3>
+                                        <div class="progress-label">13%</div>
+                                    </div>
+                                </div>
+                                <a href="{% url 'level_one' %}" class="btn btn-primary mt-4">
+                                    <i class="bi bi-play-fill me-2"></i>Start Level 1
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Outcomes -->
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Learning Outcomes</h5>
+                                <ul class="list-unstyled outcomes-list">
+                                    <li>Importance of a customer</li>
+                                    <li>Proper situation handling</li>
+                                    <li>Professional communication skills</li>
+                                    <li>Customer service excellence</li>
+                                    <li>Problem-solving techniques</li>
+                                    <li>Conflict resolution</li>
+                                    <li>Service quality standards</li>
+                                    <li>Customer satisfaction metrics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modules -->
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Modules</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>Customer Care
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Project Management
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Communication Etiquette
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Time Management
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Leadership Skills
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Team Collaboration
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted me-2"></i>Professional Ethics
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Care Levels -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Customer Care Levels</h5>
+                                <div class="levels-diagram">
+                                    <svg id="levels-svg" width="100%" height="400"></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Resources</h5>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Customer Care Fundamentals
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-camera-video me-2"></i>Professional Communication
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Service Excellence Guide
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Problem Resolution
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Customer Satisfaction
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Quality Standards
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Best Practices
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="#" class="text-decoration-none">
+                                            <i class="bi bi-file-text me-2"></i>Assessment Guide
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create the levels diagram using SVG
+    const svg = d3.select('#levels-svg');
+    const width = svg.node().getBoundingClientRect().width;
+    const height = 400;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) / 3;
+
+    // Create the circular nodes and connecting lines
+    const nodes = [
+        { id: 1, x: centerX, y: centerY - radius },
+        { id: 2, x: centerX + radius * Math.cos(Math.PI / 6), y: centerY - radius * Math.sin(Math.PI / 6) },
+        { id: 3, x: centerX + radius * Math.cos(Math.PI / 2), y: centerY },
+        { id: 4, x: centerX + radius * Math.cos(5 * Math.PI / 6), y: centerY + radius * Math.sin(Math.PI / 6) },
+        { id: 5, x: centerX, y: centerY + radius },
+        { id: 6, x: centerX - radius * Math.cos(5 * Math.PI / 6), y: centerY + radius * Math.sin(Math.PI / 6) },
+        { id: 7, x: centerX - radius * Math.cos(Math.PI / 2), y: centerY },
+        { id: 8, x: centerX - radius * Math.cos(Math.PI / 6), y: centerY - radius * Math.sin(Math.PI / 6) }
+    ];
+
+    // Draw connecting lines with animation
+    nodes.forEach((node, i) => {
+        if (i < nodes.length - 1) {
+            svg.append('line')
+                .attr('x1', node.x)
+                .attr('y1', node.y)
+                .attr('x2', node.x)
+                .attr('y2', node.y)
+                .attr('stroke', '#e9ecef')
+                .attr('stroke-width', 2)
+                .transition()
+                .duration(1000)
+                .attr('x2', nodes[i + 1].x)
+                .attr('y2', nodes[i + 1].y);
+        }
+    });
+
+    // Draw nodes with animation
+    nodes.forEach((node, i) => {
+        const group = svg.append('g')
+            .attr('transform', `translate(${node.x},${node.y})`);
+
+        // Add pulse animation to current node
+        if (i === 6) {
+            group.append('circle')
+                .attr('r', 35)
+                .attr('fill', '#28a745')
+                .attr('opacity', 0.2)
+                .attr('class', 'pulse');
+        }
+
+        group.append('circle')
+            .attr('r', 0)
+            .attr('fill', i === 6 ? '#28a745' : '#f8f9fa')
+            .attr('stroke', '#e9ecef')
+            .attr('stroke-width', 2)
+            .transition()
+            .duration(500)
+            .delay(i * 100)
+            .attr('r', 25);
+
+        group.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.3em')
+            .attr('fill', i === 6 ? 'white' : '#6c757d')
+            .attr('opacity', 0)
+            .text(i + 1)
+            .transition()
+            .duration(500)
+            .delay(i * 100)
+            .attr('opacity', 1);
+
+        // Add hover effect
+        group.on('mouseover', function() {
+            d3.select(this).select('circle')
+                .transition()
+                .duration(300)
+                .attr('r', 30);
+        }).on('mouseout', function() {
+            d3.select(this).select('circle')
+                .transition()
+                .duration(300)
+                .attr('r', 25);
+        });
+    });
+
+    // Add pulse animation
+    const pulseAnimation = () => {
+        svg.selectAll('.pulse')
+            .attr('opacity', 0.2)
+            .transition()
+            .duration(1500)
+            .attr('r', 45)
+            .attr('opacity', 0)
+            .on('end', pulseAnimation);
+    };
+
+    pulseAnimation();
+});
+</script>
+{% endblock %}
+{% endblock %} 

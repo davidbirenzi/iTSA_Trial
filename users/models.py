@@ -14,6 +14,7 @@ class AdminUserManager(BaseUserManager):
     def create_superuser(self, admin_email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -65,15 +66,32 @@ class AdminUser(AbstractUser):
     
     objects = AdminUserManager()
     
+    # Add related_name to avoid conflicts
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='admin_user_set',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        verbose_name='groups',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='admin_user_set',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
+    )
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.admin_email})"
 
 class StudentUser(AbstractUser):
-    username = None
+    username = None  # Disable username field
     student_email = models.EmailField(unique=True)
     faculty = models.CharField(max_length=100)
     academic_year = models.IntegerField()
     trimester = models.IntegerField()
+    average_score = models.FloatField(default=0)
     
     USERNAME_FIELD = 'student_email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'faculty', 'academic_year', 'trimester']
@@ -100,14 +118,13 @@ class StudentUser(AbstractUser):
         return f"{self.first_name} {self.last_name} ({self.student_email})"
 
 class TeacherUser(AbstractUser):
-    username = None
     teacher_email = models.EmailField(unique=True)
     faculty = models.CharField(max_length=100)
+    username = None  # Disable username field
+    email = models.EmailField(unique=True)  # Make email the main identifier
     
-    USERNAME_FIELD = 'teacher_email'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'faculty']
-    
-    objects = TeacherUserManager()
     
     # Add related_name to avoid conflicts
     groups = models.ManyToManyField(
@@ -125,11 +142,12 @@ class TeacherUser(AbstractUser):
         verbose_name='user permissions',
     )
     
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.teacher_email})"
+    def save(self, *args, **kwargs):
+        self.teacher_email = self.email  # Keep teacher_email in sync with email
+        super().save(*args, **kwargs)
     
-    def get_username(self):
-        return self.teacher_email
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.email})"
 
 class Course(models.Model):
     title = models.CharField(max_length=200)

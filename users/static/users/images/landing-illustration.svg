@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+    <style>
+        .primary { fill: #00c853; }
+        .secondary { fill: #2c3e50; }
+        .accent { fill: #f1f5f8; }
+    </style>
+    <g id="illustration">
+        <!-- Character -->
+        <circle class="accent" cx="400" cy="300" r="150"/>
+        <rect class="primary" x="320" y="200" width="160" height="120" rx="10"/>
+        <circle class="secondary" cx="400" cy="180" r="40"/>
+        
+        <!-- Laptop -->
+        <path class="secondary" d="M320,320 L480,320 L500,380 L300,380 Z"/>
+        <rect class="accent" x="340" y="250" width="120" height="70" rx="5"/>
+        
+        <!-- Icons -->
+        <circle class="primary" cx="200" cy="150" r="30"/>
+        <circle class="primary" cx="600" cy="150" r="30"/>
+        <circle class="primary" cx="200" cy="450" r="30"/>
+        <circle class="primary" cx="600" cy="450" r="30"/>
+        
+        <!-- Decorative elements -->
+        <path class="accent" d="M150,100 Q400,50 650,100"/>
+        <path class="accent" d="M150,500 Q400,550 650,500"/>
+    </g>
+</svg> 
